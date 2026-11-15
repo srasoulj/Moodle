@@ -31,6 +31,7 @@ class NotificationTest {
     private val slotIds = intArrayOf(
         R.id.slot1, R.id.slot2, R.id.slot3, R.id.slot4, R.id.slot5, R.id.slot6,
         R.id.slot7, R.id.slot8, R.id.slot9, R.id.slot10, R.id.slot11, R.id.slot12,
+        R.id.slot13,
     )
 
     @Before fun grant() = shadowOf(app).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
@@ -67,6 +68,11 @@ class NotificationTest {
     }
 
     @Test
+    fun everyMoodHasAViewSlot() {
+        assertEquals(Mood.entries.size, slotIds.size)
+    }
+
+    @Test
     fun collapsedViewHasTheQuickRowInOrder() {
         val root = MoodNotification.buildViews(app, expanded = false).apply(app, FrameLayout(app))
         Mood.inRow(1).forEachIndexed { i, mood ->
@@ -76,7 +82,7 @@ class NotificationTest {
             assertTrue("${mood.label} must be tappable", tv.hasOnClickListeners())
         }
         // The second row is only in the expanded layout.
-        for (i in 6 until 12) assertNull(root.findViewById<TextView>(slotIds[i]))
+        for (i in Mood.inRow(1).size until slotIds.size) assertNull(root.findViewById<TextView>(slotIds[i]))
     }
 
     @Test

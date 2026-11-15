@@ -31,7 +31,8 @@ enum class Mood(val id: Int, val emoji: String, val label: String, val row: Int)
     TIRED(9, "😴", "Tired", 2),
     THOUGHTFUL(10, "🤔", "Thoughtful", 2),
     CALM(11, "😌", "Calm", 2),
-    GRATEFUL(12, "🤗", "Grateful", 2);
+    GRATEFUL(12, "🤗", "Grateful", 2),
+    LAUGHING(13, "😂", "Laughing", 2);
 
     companion object {
         fun fromId(id: Int): Mood? = entries.firstOrNull { it.id == id }

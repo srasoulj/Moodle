@@ -31,6 +31,7 @@ object MoodNotification {
     private val slotIds = intArrayOf(
         R.id.slot1, R.id.slot2, R.id.slot3, R.id.slot4, R.id.slot5, R.id.slot6,
         R.id.slot7, R.id.slot8, R.id.slot9, R.id.slot10, R.id.slot11, R.id.slot12,
+        R.id.slot13,
     )
 
     fun status(context: Context): NotificationStatus {
@@ -111,6 +112,7 @@ object MoodNotification {
     }
 
     internal fun buildViews(context: Context, expanded: Boolean): RemoteViews {
+        check(Mood.entries.size <= slotIds.size) { "Every mood needs a slot in notification_mood_expanded.xml" }
         val layout = if (expanded) R.layout.notification_mood_expanded else R.layout.notification_mood_collapsed
         val views = RemoteViews(context.packageName, layout)
         Mood.entries.forEachIndexed { i, mood ->

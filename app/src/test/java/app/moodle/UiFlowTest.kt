@@ -3,12 +3,14 @@ package app.moodle
 import android.app.Application
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import org.junit.After
@@ -116,14 +118,19 @@ class UiFlowTest {
         insertToday(9, Mood.ANXIOUS, "a.jpg")
         insertToday(13, Mood.CALM, "b.jpg")
         insertToday(21, Mood.TIRED, "c.jpg")
+        insertToday(22, Mood.LAUGHING, "d.jpg")
         ActivityScenario.launch(MainActivity::class.java).use {
             compose.onNodeWithText("😰").assertExists()
             compose.onNodeWithText("😌").assertExists()
             compose.onNodeWithText("😴").assertExists()
+            compose.onNodeWithText("😂").assertExists()
             compose.onNodeWithText("😌").performClick()
             compose.onNodeWithText("😰  Anxious").assertExists()
             compose.onNodeWithText("😌  Calm").assertExists()
             compose.onNodeWithText("😴  Tired").assertExists()
+            // Four cards don't all fit on the test screen; the list is lazy, so scroll to the last.
+            compose.onNode(hasScrollAction()).performScrollToNode(hasText("😂  Laughing"))
+            compose.onNodeWithText("😂  Laughing").assertExists()
         }
     }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Expanded notification: both rows. Row 1 = quick scale, row 2 = other feelings.
+    Expanded notification: both rows. Row 1 = quick scale (6), row 2 = other feelings (7).
     Only RemoteViews-safe views are used (LinearLayout + TextView). Android 12+ caps the collapsed
     custom area at about 48dp, so each row is 40dp tall with no padding, and the emoji size is in
     dp (not sp) so a large system font can't clip it. Text and click targets are filled in from
@@ -127,6 +127,15 @@
 
         <TextView
             android:id="@+id/slot12"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center"
+            android:textSize="24dp" />
+
+        <TextView
+            android:id="@+id/slot13"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"

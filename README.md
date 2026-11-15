@@ -2,11 +2,11 @@
 
 A deliberately tiny, **fully offline** Android app that logs your mood in a moment.
 
-* **One entry point:** a permanent notification with twelve moods in two rows. Tap one, anywhere,
+* **One entry point:** a permanent notification with thirteen moods in two rows. Tap one, anywhere,
   any time.
   * Quick row (always visible): 😡 Angry · 😞 Bad · 😐 Meh · 🙂 Good · 🤩 Excited · 🥰 Love
   * Feelings row (pull the notification down to expand it): 😢 Sad · 😰 Anxious · 😴 Tired ·
-    🤔 Thoughtful · 😌 Calm · 🤗 Grateful
+    🤔 Thoughtful · 😌 Calm · 🤗 Grateful · 😂 Laughing
 * Every tap records **mood + time + GPS position + a selfie**, saved together. There is no way to
   skip the selfie or the position, and backing out saves nothing (no half-records).
 * The app itself is a **month calendar** that shows every emoji of each day at a glance. Tap a day to
@@ -17,7 +17,7 @@ A deliberately tiny, **fully offline** Android app that logs your mood in a mome
 
 ## Install
 
-1. On the phone, open this repo on GitHub and download `apk/moodle-1.3.apk` (it lives on the pull-request branch until that is merged).
+1. On the phone, open this repo on GitHub and download `apk/moodle-1.4.apk` (it lives on the pull-request branch until that is merged).
 2. Allow "install unknown apps" for your browser/file manager when Android asks, then install.
 3. **Open Moodle once**, and grant Notifications, Camera and Location (precise).
    Android doesn't run an app's background receivers until it has been opened once, so this first
@@ -73,7 +73,7 @@ export ANDROID_HOME=/path/to/android-sdk   # needs platforms;android-36 and buil
 ```
 
 Stack: Kotlin, Jetpack Compose (Material 3), CameraX, platform `LocationManager` (no Play Services),
-plain SQLite. Tests: 59 JVM tests (101 runs: the behaviour suites run on both Android 9 / API 28, the minimum, and
+plain SQLite. Tests: 60 JVM tests (103 runs: the behaviour suites run on both Android 9 / API 28, the minimum, and
 Android 15 / API 35). They cover the pure calendar logic, SQLite, the notification wiring, the GPS
 fallback timing, and the real activities driven through Robolectric: calendar → day → delete, and the
 capture/save/cancel flows.

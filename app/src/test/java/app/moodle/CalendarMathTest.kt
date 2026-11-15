@@ -101,13 +101,14 @@ class CalendarMathTest {
 
     @Test
     fun moodIdsEmojisAndLabelsAreUnique() {
-        assertEquals(12, Mood.entries.size)
+        assertEquals(13, Mood.entries.size)
         assertEquals(Mood.entries.size, Mood.entries.map { it.id }.toSet().size)
         assertEquals(Mood.entries.size, Mood.entries.map { it.emoji }.toSet().size)
         assertEquals(Mood.entries.size, Mood.entries.map { it.label }.toSet().size)
         assertNull(Mood.fromId(0))
-        assertNull(Mood.fromId(13))
+        assertNull(Mood.fromId(14))
         assertEquals(Mood.GRATEFUL, Mood.fromId(12))
+        assertEquals(Mood.LAUGHING, Mood.fromId(13))
     }
 
     @Test
@@ -120,9 +121,9 @@ class CalendarMathTest {
 
     @Test
     fun theTwoNotificationRowsMatchTheLayoutSlots() {
-        // The layouts have 6 slots per row and slot N maps to the Nth mood in display order.
+        // The collapsed layout has 6 slots, the expanded one 6 + 7; slot N is the Nth mood in display order.
         assertEquals(6, Mood.inRow(1).size)
-        assertEquals(6, Mood.inRow(2).size)
+        assertEquals(7, Mood.inRow(2).size)
         assertEquals(Mood.entries.toList(), Mood.inRow(1) + Mood.inRow(2))
         assertEquals(listOf(Mood.ANGRY, Mood.BAD, Mood.MEH, Mood.GOOD, Mood.EXCITED, Mood.LOVE), Mood.inRow(1))
     }
