@@ -2,64 +2,64 @@
 <!--
     Notification content: five equally wide, individually tappable emojis, worst to best.
     Only RemoteViews-safe views are used here (LinearLayout + TextView).
+    Android 12+ caps the collapsed custom area at about 48dp, so the row is 40dp tall with no
+    padding, and the emoji size is in dp (not sp) so a large system font can't clip it.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="HardcodedText"
+    tools:ignore="HardcodedText,SpUsage"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingTop="2dp"
-    android:paddingBottom="2dp">
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/mood1"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
         android:text="😡"
-        android:textSize="28sp" />
+        android:textSize="24dp" />
 
     <TextView
         android:id="@+id/mood2"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
         android:text="😞"
-        android:textSize="28sp" />
+        android:textSize="24dp" />
 
     <TextView
         android:id="@+id/mood3"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
         android:text="🙂"
-        android:textSize="28sp" />
+        android:textSize="24dp" />
 
     <TextView
         android:id="@+id/mood4"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
         android:text="🤩"
-        android:textSize="28sp" />
+        android:textSize="24dp" />
 
     <TextView
         android:id="@+id/mood5"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
         android:text="🥰"
-        android:textSize="28sp" />
+        android:textSize="24dp" />
 </LinearLayout>

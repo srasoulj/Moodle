@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 import java.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
+@Config(sdk = [28, 35])
 class LocationTrackerTest {
     private val app: Application = ApplicationProvider.getApplicationContext()
     private val lm get() = app.getSystemService(LocationManager::class.java)

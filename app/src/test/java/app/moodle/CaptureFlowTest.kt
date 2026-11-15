@@ -8,9 +8,11 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
 import android.os.SystemClock
+import androidx.camera.core.ImageCapture
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
@@ -33,7 +35,7 @@ import java.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [35])
+@Config(sdk = [28, 35])
 class CaptureFlowTest {
     @get:Rule val compose = createEmptyComposeRule()
 
@@ -88,6 +90,21 @@ class CaptureFlowTest {
         compose.onNodeWithText("Allow access").assertExists()
         compose.onNodeWithText("🥰  Love").assertExists()
         assertEquals(0, db.count())
+        c.pause().stop().destroy()
+    }
+
+    /**
+     * CameraX binds asynchronously, after the first composition. The shutter must notice, or no
+     * selfie (and therefore no moment) can ever be taken on a real phone.
+     */
+    @Test
+    fun shutterBecomesEnabledOnceTheCameraHasBound() {
+        grantAll()
+        val c = launch(Mood.GOOD)
+        compose.onNodeWithContentDescription("Take selfie").assertIsNotEnabled()
+        c.get().imageCapture = ImageCapture.Builder().build()
+        compose.waitForIdle()
+        compose.onNodeWithContentDescription("Take selfie").assertIsEnabled()
         c.pause().stop().destroy()
     }
 

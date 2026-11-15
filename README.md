@@ -14,7 +14,7 @@ A deliberately tiny, **fully offline** Android app that logs your mood in a mome
 
 ## Install
 
-1. On the phone, open this repo on GitHub and download `apk/moodle-1.0.apk`.
+1. On the phone, open this repo on GitHub and download `apk/moodle-1.1.apk` (it lives on the pull-request branch until that is merged).
 2. Allow "install unknown apps" for your browser/file manager when Android asks, then install.
 3. **Open Moodle once**, and grant Notifications, Camera and Location (precise).
    Android doesn't run an app's background receivers until it has been opened once, so this first
@@ -61,9 +61,10 @@ export ANDROID_HOME=/path/to/android-sdk   # needs platforms;android-36 and buil
 ```
 
 Stack: Kotlin, Jetpack Compose (Material 3), CameraX, platform `LocationManager` (no Play Services),
-plain SQLite. Tests: 40 JVM tests (pure calendar logic, SQLite, notification wiring, GPS fallback timing,
-and the real activities driven through Robolectric: calendar → day → delete, and the capture/save/cancel
-flows).
+plain SQLite. Tests: 41 JVM tests (70 runs: the behaviour suites run on both Android 9 / API 28, the minimum, and
+Android 15 / API 35). They cover the pure calendar logic, SQLite, the notification wiring, the GPS
+fallback timing, and the real activities driven through Robolectric: calendar → day → delete, and the
+capture/save/cancel flows.
 
 ## Honest limitations
 

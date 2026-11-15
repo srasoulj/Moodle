@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Application
 import android.app.Notification
 import android.app.NotificationManager
+import android.os.Build
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
@@ -12,6 +13,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,7 +22,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
+@Config(sdk = [28, 35])
 class NotificationTest {
     private val app: Application = ApplicationProvider.getApplicationContext()
     private val nm get() = app.getSystemService(NotificationManager::class.java)
@@ -47,6 +49,8 @@ class NotificationTest {
 
     @Test
     fun doesNotPostWithoutTheNotificationPermission() {
+        // The runtime notification permission only exists from Android 13.
+        assumeTrue(Build.VERSION.SDK_INT >= 33)
         shadowOf(app).denyPermissions(Manifest.permission.POST_NOTIFICATIONS)
         assertEquals(NotificationStatus.PERMISSION_DENIED, MoodNotification.status(app))
         assertFalse(MoodNotification.post(app))

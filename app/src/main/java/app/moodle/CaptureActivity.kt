@@ -54,6 +54,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -89,7 +92,9 @@ class CaptureActivity : ComponentActivity() {
 
     private lateinit var tracker: LocationTracker
     private val io = Executors.newSingleThreadExecutor()
-    private var imageCapture: ImageCapture? = null
+    // Compose state on purpose: CameraX binds asynchronously after the first composition, and
+    // the shutter's enabled flag has to react when binding finishes.
+    internal var imageCapture by mutableStateOf<ImageCapture?>(null)
     private var cameraProvider: ProcessCameraProvider? = null
     private var frontCamera = true
 
@@ -393,12 +398,13 @@ class CaptureActivity : ComponentActivity() {
                     Modifier
                         .padding(top = 12.dp)
                         .size(76.dp)
+                        .semantics { contentDescription = "Take selfie" }
                         .clip(CircleShape)
                         .border(4.dp, Color.White, CircleShape)
                         .padding(8.dp)
                         .clip(CircleShape)
                         .background(if (shutterBusy) Color.Gray else Color.White)
-                        .clickable(enabled = !shutterBusy && imageCapture != null) { takePhoto() }
+                        .clickable(enabled = !shutterBusy && imageCapture != null, role = Role.Button) { takePhoto() }
                 )
             }
         }

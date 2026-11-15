@@ -15,8 +15,8 @@ android {
         minSdk = 28
         targetSdk = 35
         // Bump versionCode on every build you want to install over the previous one.
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
 
     // The signing key lives in the repo on purpose: every rebuild must carry the SAME

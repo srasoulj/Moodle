@@ -41,8 +41,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         Photos.clearPending(this)
         refreshState()
-        if (savedInstanceState == null && missingRuntimePermissions().isNotEmpty()) {
-            requestOrOpenSettings()
+        if (savedInstanceState == null) {
+            // Show the system dialog only while Android will still show it. Once a permission is
+            // permanently denied, the banner's Fix button is the way to Settings, not every launch.
+            val missing = missingRuntimePermissions()
+            if (missing.isNotEmpty() && !permanentlyDenied(missing)) launchPermissionRequest(missing)
         }
         setContent {
             MoodleTheme {
@@ -98,19 +101,25 @@ class MainActivity : ComponentActivity() {
             openNotificationSettings()
             return
         }
-        val permanentlyDenied = missing.any {
-            prefs.getBoolean(it, false) && !shouldShowRequestPermissionRationale(it)
-        }
-        if (permanentlyDenied) {
+        if (permanentlyDenied(missing)) {
             startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
             )
         } else {
-            val edit = prefs.edit()
-            missing.forEach { edit.putBoolean(it, true) }
-            edit.apply()
-            permissionLauncher.launch(missing.toTypedArray())
+            launchPermissionRequest(missing)
         }
+    }
+
+    /** Asked before, and Android no longer wants us to explain: the dialog won't appear again. */
+    private fun permanentlyDenied(missing: List<String>) = missing.any {
+        prefs.getBoolean(it, false) && !shouldShowRequestPermissionRationale(it)
+    }
+
+    private fun launchPermissionRequest(missing: List<String>) {
+        val edit = prefs.edit()
+        missing.forEach { edit.putBoolean(it, true) }
+        edit.apply()
+        permissionLauncher.launch(missing.toTypedArray())
     }
 
     private fun openNotificationSettings() {

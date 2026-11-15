@@ -25,7 +25,7 @@ import java.time.ZoneId
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [35])
+@Config(sdk = [28, 35])
 class UiFlowTest {
     @get:Rule val compose = createEmptyComposeRule()
 
