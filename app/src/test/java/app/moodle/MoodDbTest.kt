@@ -61,6 +61,25 @@ class MoodDbTest {
     }
 
     @Test
+    fun everyMoodRoundTripsThroughTheDatabase() {
+        val db = MoodDb.get(app)
+        Mood.entries.forEachIndexed { i, mood -> db.insert(new(1_000L + i, mood, "m$i.jpg")) }
+        assertEquals(Mood.entries.toList(), db.between(0, 100_000).map { it.mood })
+    }
+
+    @Test
+    fun aRowWithAnUnknownMoodIdIsSkippedInsteadOfCrashing() {
+        // e.g. written by a newer version of the app with more moods
+        val db = MoodDb.get(app)
+        db.insert(new(1_000, Mood.GOOD, "ok.jpg"))
+        db.writableDatabase.execSQL(
+            "INSERT INTO moments(ts, zone, mood, photo, lat, lon, accuracy, approx) " +
+                "VALUES (2000, 'UTC', 99, 'future.jpg', 0, 0, 1, 0)"
+        )
+        assertEquals(listOf("ok.jpg"), db.between(0, 10_000).map { it.photoName })
+    }
+
+    @Test
     fun photosAreCommittedOutOfTheCacheIntoPrivateStorage() {
         val pending = Photos.newPendingFile(app).apply { writeText("jpeg-bytes") }
         val name = Photos.commit(app, pending, 12345L)

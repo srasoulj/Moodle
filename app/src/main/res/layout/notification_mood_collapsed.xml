@@ -1,65 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Notification content: five equally wide, individually tappable emojis, worst to best.
-    Only RemoteViews-safe views are used here (LinearLayout + TextView).
-    Android 12+ caps the collapsed custom area at about 48dp, so the row is 40dp tall with no
-    padding, and the emoji size is in dp (not sp) so a large system font can't clip it.
+    Collapsed notification: the quick row (bad -> good), one tap from the shade.
+    Only RemoteViews-safe views are used (LinearLayout + TextView). Android 12+ caps the collapsed
+    custom area at about 48dp, so each row is 40dp tall with no padding, and the emoji size is in
+    dp (not sp) so a large system font can't clip it. Text and click targets are filled in from
+    code (MoodNotification): slot N is the Nth mood in display order.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="HardcodedText,SpUsage"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:ignore="SpUsage">
 
     <TextView
-        android:id="@+id/mood1"
+        android:id="@+id/slot1"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
-        android:text="😡"
         android:textSize="24dp" />
 
     <TextView
-        android:id="@+id/mood2"
+        android:id="@+id/slot2"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
-        android:text="😞"
         android:textSize="24dp" />
 
     <TextView
-        android:id="@+id/mood3"
+        android:id="@+id/slot3"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
-        android:text="🙂"
         android:textSize="24dp" />
 
     <TextView
-        android:id="@+id/mood4"
+        android:id="@+id/slot4"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
-        android:text="🤩"
         android:textSize="24dp" />
 
     <TextView
-        android:id="@+id/mood5"
+        android:id="@+id/slot5"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
-        android:text="🥰"
+        android:textSize="24dp" />
+
+    <TextView
+        android:id="@+id/slot6"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="?android:attr/selectableItemBackground"
+        android:gravity="center"
         android:textSize="24dp" />
 </LinearLayout>

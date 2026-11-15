@@ -112,8 +112,24 @@ class UiFlowTest {
     }
 
     @Test
+    fun theExtraFeelingsShowUpInTheCalendarAndTheDayList() {
+        insertToday(9, Mood.ANXIOUS, "a.jpg")
+        insertToday(13, Mood.CALM, "b.jpg")
+        insertToday(21, Mood.TIRED, "c.jpg")
+        ActivityScenario.launch(MainActivity::class.java).use {
+            compose.onNodeWithText("😰").assertExists()
+            compose.onNodeWithText("😌").assertExists()
+            compose.onNodeWithText("😴").assertExists()
+            compose.onNodeWithText("😌").performClick()
+            compose.onNodeWithText("😰  Anxious").assertExists()
+            compose.onNodeWithText("😌  Calm").assertExists()
+            compose.onNodeWithText("😴  Tired").assertExists()
+        }
+    }
+
+    @Test
     fun busyDaysAreCappedWithAPlusNIndicator() {
-        repeat(12) { insertToday(8 + (it % 12), Mood.entries[it % 5], "p$it.jpg") }
+        repeat(12) { insertToday(8 + (it % 12), Mood.entries[it % Mood.entries.size], "p$it.jpg") }
         ActivityScenario.launch(MainActivity::class.java).use {
             compose.onNodeWithText("+4").assertExists() // 12 moments, 8 shown
         }

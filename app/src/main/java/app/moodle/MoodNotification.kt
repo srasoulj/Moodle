@@ -27,8 +27,10 @@ object MoodNotification {
     const val NOTIFICATION_ID = 1001
     const val ACTION_REPOST = "app.moodle.action.REPOST"
 
-    private val emojiViewIds = intArrayOf(
-        R.id.mood1, R.id.mood2, R.id.mood3, R.id.mood4, R.id.mood5,
+    /** View ids in display order: slot N shows the Nth mood in [Mood.entries]. */
+    private val slotIds = intArrayOf(
+        R.id.slot1, R.id.slot2, R.id.slot3, R.id.slot4, R.id.slot5, R.id.slot6,
+        R.id.slot7, R.id.slot8, R.id.slot9, R.id.slot10, R.id.slot11, R.id.slot12,
     )
 
     fun status(context: Context): NotificationStatus {
@@ -69,7 +71,10 @@ object MoodNotification {
         ensureChannel(app)
         if (status(app) != NotificationStatus.OK) return false
 
-        val views = buildViews(app)
+        // Android 12+ gives a custom notification only ~48dp when collapsed, so that view carries
+        // the quick row; the second row of feelings appears when the notification is expanded.
+        val collapsed = buildViews(app, expanded = false)
+        val expanded = buildViews(app, expanded = true)
 
         val openApp = PendingIntent.getActivity(
             app, 0, Intent(app, MainActivity::class.java),
@@ -86,8 +91,8 @@ object MoodNotification {
         val notification = NotificationCompat.Builder(app, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_mood)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(views)
-            .setCustomBigContentView(views)
+            .setCustomContentView(collapsed)
+            .setCustomBigContentView(expanded)
             .setContentIntent(openApp)
             .setDeleteIntent(deleted)
             .setOngoing(true)
@@ -105,10 +110,12 @@ object MoodNotification {
         return true
     }
 
-    internal fun buildViews(context: Context): RemoteViews {
-        val views = RemoteViews(context.packageName, R.layout.notification_mood)
+    internal fun buildViews(context: Context, expanded: Boolean): RemoteViews {
+        val layout = if (expanded) R.layout.notification_mood_expanded else R.layout.notification_mood_collapsed
+        val views = RemoteViews(context.packageName, layout)
         Mood.entries.forEachIndexed { i, mood ->
-            val id = emojiViewIds[i]
+            if (!expanded && mood.row != 1) return@forEachIndexed // not in the collapsed layout
+            val id = slotIds[i]
             views.setTextViewText(id, mood.emoji)
             views.setContentDescription(id, mood.label)
             views.setOnClickPendingIntent(id, capturePendingIntent(context, mood))
@@ -125,11 +132,11 @@ object MoodNotification {
     internal fun capturePendingIntent(context: Context, mood: Mood): PendingIntent {
         val intent = Intent(context, CaptureActivity::class.java)
             .setAction(CaptureActivity.ACTION_CAPTURE)
-            .setData(Uri.parse("moodle://capture/${mood.score}"))
-            .putExtra(CaptureActivity.EXTRA_MOOD, mood.score)
+            .setData(Uri.parse("moodle://capture/${mood.id}"))
+            .putExtra(CaptureActivity.EXTRA_MOOD, mood.id)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         return PendingIntent.getActivity(
-            context, mood.score, intent,
+            context, mood.id, intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
     }

@@ -61,7 +61,7 @@ class CaptureFlowTest {
 
     private fun intentFor(mood: Mood) = Intent(app, CaptureActivity::class.java)
         .setAction(CaptureActivity.ACTION_CAPTURE)
-        .putExtra(CaptureActivity.EXTRA_MOOD, mood.score)
+        .putExtra(CaptureActivity.EXTRA_MOOD, mood.id)
 
     private fun launch(mood: Mood) =
         Robolectric.buildActivity(CaptureActivity::class.java, intentFor(mood)).setup()
@@ -75,10 +75,15 @@ class CaptureFlowTest {
         time = System.currentTimeMillis(); elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
     }
 
+    /**
+     * Waits for work done on a background thread (the save), which reports back by posting to the
+     * main looper. Robolectric's looper is paused, so something has to pump it, but only while
+     * Compose is idle: pumping mid-layout is what made an earlier version of this flaky.
+     */
     private fun waitFor(timeoutMs: Long = 5000, cond: () -> Boolean) {
         val end = System.currentTimeMillis() + timeoutMs
         while (!cond() && System.currentTimeMillis() < end) {
-            shadowOf(Looper.getMainLooper()).idle()
+            compose.runOnIdle { shadowOf(Looper.getMainLooper()).idle() }
             Thread.sleep(25)
         }
         assertTrue("condition not met in ${timeoutMs}ms", cond())
@@ -244,6 +249,16 @@ class CaptureFlowTest {
         compose.onNodeWithText("📍 Location locked (±5 m)").assertDoesNotExist()
         compose.onNodeWithText("📍 Rough location found").assertExists()
         c.pause().stop().destroy()
+    }
+
+    @Test
+    fun everyMoodOpensTheCaptureScreenShowingThatMood() {
+        grantAll()
+        for (mood in Mood.entries) {
+            val c = launch(mood)
+            compose.onNodeWithText("${mood.emoji}  ${mood.label}").assertExists()
+            c.pause().stop().destroy()
+        }
     }
 
     @Test

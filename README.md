@@ -2,8 +2,11 @@
 
 A deliberately tiny, **fully offline** Android app that logs your mood in a moment.
 
-* **One entry point:** a permanent notification with five emojis, worst to best:
-  😡 😞 🙂 🤩 🥰 (stored as 1–5). Tap one, anywhere, any time.
+* **One entry point:** a permanent notification with twelve moods in two rows. Tap one, anywhere,
+  any time.
+  * Quick row (always visible): 😡 Angry · 😞 Bad · 😐 Meh · 🙂 Good · 🤩 Excited · 🥰 Love
+  * Feelings row (pull the notification down to expand it): 😢 Sad · 😰 Anxious · 😴 Tired ·
+    🤔 Thoughtful · 😌 Calm · 🤗 Grateful
 * Every tap records **mood + time + GPS position + a selfie**, saved together. There is no way to
   skip the selfie or the position, and backing out saves nothing (no half-records).
 * The app itself is a **month calendar** that shows every emoji of each day at a glance. Tap a day to
@@ -14,7 +17,7 @@ A deliberately tiny, **fully offline** Android app that logs your mood in a mome
 
 ## Install
 
-1. On the phone, open this repo on GitHub and download `apk/moodle-1.2.apk` (it lives on the pull-request branch until that is merged).
+1. On the phone, open this repo on GitHub and download `apk/moodle-1.3.apk` (it lives on the pull-request branch until that is merged).
 2. Allow "install unknown apps" for your browser/file manager when Android asks, then install.
 3. **Open Moodle once**, and grant Notifications, Camera and Location (precise).
    Android doesn't run an app's background receivers until it has been opened once, so this first
@@ -43,6 +46,11 @@ stay correct when you travel.
 
 ## Things worth knowing
 
+* **Why the second row is hidden until you expand.** Android only gives a custom notification about
+  48 dp of height while it is collapsed, which fits exactly one row. Pull the notification down (or tap
+  its arrow) to see both. Moods and their order live in one place, `Mood.kt`; each has a permanent id
+  (1-5 are the original moods and must never change, or older moments would change meaning).
+
 * **"Permanent" notification.** Since Android 14 users can swipe away even ongoing notifications.
   Moodle re-posts it immediately when that happens, after a reboot, and after an app update; opening
   the app also restores it. If you switch notifications off in system settings the app shows a
@@ -65,7 +73,7 @@ export ANDROID_HOME=/path/to/android-sdk   # needs platforms;android-36 and buil
 ```
 
 Stack: Kotlin, Jetpack Compose (Material 3), CameraX, platform `LocationManager` (no Play Services),
-plain SQLite. Tests: 50 JVM tests (88 runs: the behaviour suites run on both Android 9 / API 28, the minimum, and
+plain SQLite. Tests: 59 JVM tests (101 runs: the behaviour suites run on both Android 9 / API 28, the minimum, and
 Android 15 / API 35). They cover the pure calendar logic, SQLite, the notification wiring, the GPS
 fallback timing, and the real activities driven through Robolectric: calendar → day → delete, and the
 capture/save/cancel flows.

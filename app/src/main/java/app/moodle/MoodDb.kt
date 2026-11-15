@@ -36,7 +36,7 @@ class MoodDb private constructor(context: Context) :
         val values = ContentValues().apply {
             put("ts", m.epochMillis)
             put("zone", m.zoneId)
-            put("mood", m.mood.score)
+            put("mood", m.mood.id)
             put("photo", m.photoName)
             put("lat", m.latitude)
             put("lon", m.longitude)
@@ -66,7 +66,7 @@ class MoodDb private constructor(context: Context) :
             val iAcc = c.getColumnIndexOrThrow("accuracy")
             val iApprox = c.getColumnIndexOrThrow("approx")
             while (c.moveToNext()) {
-                val mood = Mood.fromScore(c.getInt(iMood)) ?: continue
+                val mood = Mood.fromId(c.getInt(iMood)) ?: continue
                 out += Moment(
                     id = c.getLong(iId),
                     epochMillis = c.getLong(iTs),

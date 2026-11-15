@@ -12,6 +12,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -27,7 +28,10 @@ class NotificationTest {
     private val app: Application = ApplicationProvider.getApplicationContext()
     private val nm get() = app.getSystemService(NotificationManager::class.java)
 
-    private val emojiIds = intArrayOf(R.id.mood1, R.id.mood2, R.id.mood3, R.id.mood4, R.id.mood5)
+    private val slotIds = intArrayOf(
+        R.id.slot1, R.id.slot2, R.id.slot3, R.id.slot4, R.id.slot5, R.id.slot6,
+        R.id.slot7, R.id.slot8, R.id.slot9, R.id.slot10, R.id.slot11, R.id.slot12,
+    )
 
     @Before fun grant() = shadowOf(app).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
 
@@ -44,8 +48,6 @@ class NotificationTest {
         assertEquals(NotificationManager.IMPORTANCE_LOW, channel.importance)
         assertNull(channel.sound)
     }
-
-    private fun assertNull(x: Any?) = org.junit.Assert.assertNull(x)
 
     @Test
     fun doesNotPostWithoutTheNotificationPermission() {
@@ -65,10 +67,23 @@ class NotificationTest {
     }
 
     @Test
-    fun fiveEmojiViewsInflateInOrder() {
-        val root = MoodNotification.buildViews(app).apply(app, FrameLayout(app))
+    fun collapsedViewHasTheQuickRowInOrder() {
+        val root = MoodNotification.buildViews(app, expanded = false).apply(app, FrameLayout(app))
+        Mood.inRow(1).forEachIndexed { i, mood ->
+            val tv = root.findViewById<TextView>(slotIds[i])
+            assertEquals(mood.emoji, tv.text.toString())
+            assertEquals(mood.label, tv.contentDescription.toString())
+            assertTrue("${mood.label} must be tappable", tv.hasOnClickListeners())
+        }
+        // The second row is only in the expanded layout.
+        for (i in 6 until 12) assertNull(root.findViewById<TextView>(slotIds[i]))
+    }
+
+    @Test
+    fun expandedViewHasBothRowsInOrder() {
+        val root = MoodNotification.buildViews(app, expanded = true).apply(app, FrameLayout(app))
         Mood.entries.forEachIndexed { i, mood ->
-            val tv = root.findViewById<TextView>(emojiIds[i])
+            val tv = root.findViewById<TextView>(slotIds[i])
             assertEquals(mood.emoji, tv.text.toString())
             assertEquals(mood.label, tv.contentDescription.toString())
             assertTrue("${mood.label} must be tappable", tv.hasOnClickListeners())
@@ -77,29 +92,40 @@ class NotificationTest {
 
     /** Regression guard: PendingIntent identity ignores extras, so these must differ another way. */
     @Test
-    fun everyEmojiHasItsOwnPendingIntentCarryingItsOwnMood() {
+    fun everyMoodHasItsOwnPendingIntentCarryingItsOwnId() {
         val pending = Mood.entries.map { MoodNotification.capturePendingIntent(app, it) }
         for (i in pending.indices) for (j in i + 1 until pending.size) {
             assertNotEquals("buttons ${i + 1} and ${j + 1} collapsed into one", pending[i], pending[j])
         }
-        pending.forEachIndexed { i, pi ->
-            val sp = shadowOf(pi)
+        Mood.entries.forEachIndexed { i, mood ->
+            val sp = shadowOf(pending[i])
             assertTrue(sp.isActivityIntent)
             assertEquals(CaptureActivity::class.java.name, sp.savedIntent.component?.className)
-            assertEquals(i + 1, sp.savedIntent.getIntExtra(CaptureActivity.EXTRA_MOOD, -1))
-            assertEquals(i + 1, sp.requestCode)
+            assertEquals(mood.id, sp.savedIntent.getIntExtra(CaptureActivity.EXTRA_MOOD, -1))
+            assertEquals(mood.id, sp.requestCode)
         }
     }
 
     @Test
-    fun tappingEachEmojiStartsTheCaptureScreenForThatMood() {
-        val root = MoodNotification.buildViews(app).apply(app, FrameLayout(app))
+    fun tappingAnyEmojiInTheExpandedNotificationStartsCaptureForThatMood() {
+        val root = MoodNotification.buildViews(app, expanded = true).apply(app, FrameLayout(app))
         Mood.entries.forEachIndexed { i, mood ->
-            root.findViewById<TextView>(emojiIds[i]).performClick()
+            root.findViewById<TextView>(slotIds[i]).performClick()
             val started = shadowOf(app).nextStartedActivity
             assertNotNull("tapping ${mood.label} started nothing", started)
             assertEquals(CaptureActivity::class.java.name, started.component?.className)
-            assertEquals(mood.score, started.getIntExtra(CaptureActivity.EXTRA_MOOD, -1))
+            assertEquals(mood.id, started.getIntExtra(CaptureActivity.EXTRA_MOOD, -1))
+        }
+    }
+
+    @Test
+    fun tappingAnyEmojiInTheCollapsedNotificationStartsCaptureForThatMood() {
+        val root = MoodNotification.buildViews(app, expanded = false).apply(app, FrameLayout(app))
+        Mood.inRow(1).forEachIndexed { i, mood ->
+            root.findViewById<TextView>(slotIds[i]).performClick()
+            val started = shadowOf(app).nextStartedActivity
+            assertNotNull("tapping ${mood.label} started nothing", started)
+            assertEquals(mood.id, started.getIntExtra(CaptureActivity.EXTRA_MOOD, -1))
         }
     }
 }

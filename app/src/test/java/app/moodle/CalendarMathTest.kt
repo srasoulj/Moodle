@@ -90,11 +90,40 @@ class CalendarMathTest {
     }
 
     @Test
-    fun moodScoresAreOrderedAndUnique() {
-        assertEquals(listOf(1, 2, 3, 4, 5), Mood.entries.map { it.score })
-        assertEquals(5, Mood.entries.map { it.emoji }.toSet().size)
-        assertEquals(Mood.LOVE, Mood.fromScore(5))
-        assertNull(Mood.fromScore(0))
-        assertNull(Mood.fromScore(6))
+    fun theOriginalFiveMoodsKeepTheirStoredIdsSoOldMomentsStayValid() {
+        // These ids are already in people's databases. Never change them.
+        assertEquals(Mood.ANGRY, Mood.fromId(1)); assertEquals("😡", Mood.ANGRY.emoji)
+        assertEquals(Mood.BAD, Mood.fromId(2)); assertEquals("😞", Mood.BAD.emoji)
+        assertEquals(Mood.GOOD, Mood.fromId(3)); assertEquals("🙂", Mood.GOOD.emoji)
+        assertEquals(Mood.EXCITED, Mood.fromId(4)); assertEquals("🤩", Mood.EXCITED.emoji)
+        assertEquals(Mood.LOVE, Mood.fromId(5)); assertEquals("🥰", Mood.LOVE.emoji)
+    }
+
+    @Test
+    fun moodIdsEmojisAndLabelsAreUnique() {
+        assertEquals(12, Mood.entries.size)
+        assertEquals(Mood.entries.size, Mood.entries.map { it.id }.toSet().size)
+        assertEquals(Mood.entries.size, Mood.entries.map { it.emoji }.toSet().size)
+        assertEquals(Mood.entries.size, Mood.entries.map { it.label }.toSet().size)
+        assertNull(Mood.fromId(0))
+        assertNull(Mood.fromId(13))
+        assertEquals(Mood.GRATEFUL, Mood.fromId(12))
+    }
+
+    @Test
+    fun everyEmojiIsASingleCodePointSoItRendersOnAndroid9() {
+        // ZWJ sequences / flags / newer emoji can show as tofu on old phones and in notifications.
+        for (m in Mood.entries) {
+            assertEquals("${m.label} (${m.emoji}) must be one code point", 1, m.emoji.codePointCount(0, m.emoji.length))
+        }
+    }
+
+    @Test
+    fun theTwoNotificationRowsMatchTheLayoutSlots() {
+        // The layouts have 6 slots per row and slot N maps to the Nth mood in display order.
+        assertEquals(6, Mood.inRow(1).size)
+        assertEquals(6, Mood.inRow(2).size)
+        assertEquals(Mood.entries.toList(), Mood.inRow(1) + Mood.inRow(2))
+        assertEquals(listOf(Mood.ANGRY, Mood.BAD, Mood.MEH, Mood.GOOD, Mood.EXCITED, Mood.LOVE), Mood.inRow(1))
     }
 }

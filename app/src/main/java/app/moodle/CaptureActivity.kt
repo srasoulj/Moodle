@@ -158,7 +158,7 @@ class CaptureActivity : ComponentActivity() {
     // -----------------------------------------------------------------------------------
 
     private fun beginMoment(intent: Intent): Boolean {
-        val chosen = Mood.fromScore(intent.getIntExtra(EXTRA_MOOD, -1)) ?: return false
+        val chosen = Mood.fromId(intent.getIntExtra(EXTRA_MOOD, -1)) ?: return false
         pendingFile?.delete()
         pendingFile = null
         saving = false
