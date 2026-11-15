@@ -70,7 +70,8 @@ class MainActivity : ComponentActivity() {
         readiness = Readiness(
             notifications = MoodNotification.status(this),
             camera = granted(Manifest.permission.CAMERA),
-            location = granted(Manifest.permission.ACCESS_FINE_LOCATION),
+            location = granted(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                granted(Manifest.permission.ACCESS_COARSE_LOCATION),
         )
         // Always (re)post: harmless if it is already there, and it heals a dismissed one.
         MoodNotification.post(this)
@@ -84,7 +85,9 @@ class MainActivity : ComponentActivity() {
             add(Manifest.permission.POST_NOTIFICATIONS)
         }
         if (!granted(Manifest.permission.CAMERA)) add(Manifest.permission.CAMERA)
-        if (!granted(Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if (!granted(Manifest.permission.ACCESS_FINE_LOCATION) &&
+            !granted(Manifest.permission.ACCESS_COARSE_LOCATION)
+        ) {
             add(Manifest.permission.ACCESS_FINE_LOCATION)
             add(Manifest.permission.ACCESS_COARSE_LOCATION) // must be requested together on Android 12+
         }

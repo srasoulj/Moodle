@@ -144,13 +144,15 @@ class CaptureFlowTest {
     }
 
     @Test
-    fun lastKnownFallbackIsSavedAndFlaggedApproximate() {
+    fun aRecentLastKnownLocationLetsYouSaveStraightAway() {
         grantAll()
-        shadowOf(lm).setLastKnownLocation(LocationManager.GPS_PROVIDER, gps(48.85, 2.35, 40f))
+        shadowOf(lm).setLastKnownLocation(
+            LocationManager.GPS_PROVIDER, gps(48.85, 2.35, 40f).apply { time = System.currentTimeMillis() - 60_000 },
+        )
         val c = launch(Mood.GOOD)
         c.get().pendingFile = fakeSelfie()
-        compose.onNodeWithText("Save moment").assertIsNotEnabled()
-        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(21))
+        // No waiting at all: the rough location is already there.
+        compose.onNodeWithText("📍 Rough location found").assertExists()
         compose.onNodeWithText("Save moment").assertIsEnabled().performClick()
         waitFor { db.count() == 1 }
         val m = db.between(0, Long.MAX_VALUE).single()
@@ -159,11 +161,39 @@ class CaptureFlowTest {
     }
 
     @Test
+    fun aStaleLastKnownLocationIsUsedAfterTheShortTimeout() {
+        grantAll()
+        shadowOf(lm).setLastKnownLocation(
+            LocationManager.GPS_PROVIDER, gps(48.85, 2.35, 40f).apply { time = System.currentTimeMillis() - 3_600_000 },
+        )
+        val c = launch(Mood.GOOD)
+        c.get().pendingFile = fakeSelfie()
+        compose.onNodeWithText("Save moment").assertIsNotEnabled()
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(9))
+        compose.onNodeWithText("Save moment").assertIsEnabled().performClick()
+        waitFor { db.count() == 1 }
+        val m = db.between(0, Long.MAX_VALUE).single()
+        assertTrue(m.approximate)
+        assertEquals(48.85, m.latitude, 1e-9)
+    }
+
+    @Test
+    fun approximateOnlyLocationPermissionIsAccepted() {
+        shadowOf(app).grantPermissions(
+            Manifest.permission.CAMERA, Manifest.permission.ACCESS_COARSE_LOCATION,
+        )
+        val c = launch(Mood.GOOD)
+        compose.onNodeWithText("Allow access").assertDoesNotExist()
+        compose.onNodeWithText("📍 Finding your location…").assertExists()
+        c.pause().stop().destroy()
+    }
+
+    @Test
     fun noLocationEverMeansNoSaveAndARetryOffer() {
         grantAll()
         val c = launch(Mood.GOOD)
         c.get().pendingFile = fakeSelfie()
-        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(21))
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(9))
         compose.onNodeWithText("Retry").assertExists()
         compose.onNodeWithText("Save moment").assertIsNotEnabled()
         assertEquals(0, db.count())
@@ -209,7 +239,10 @@ class CaptureFlowTest {
         compose.onNodeWithText("🥰  Love").assertExists()
         assertNull("old selfie must not carry over", c.get().pendingFile)
         assertFalse(stale.exists())
-        compose.onNodeWithText("📍 Finding your location…").assertExists() // old fix discarded too
+        // The tracker restarted: the old *exact* fix is gone; the position found seconds ago is
+        // re-offered only as a rough last-known one.
+        compose.onNodeWithText("📍 Location locked (±5 m)").assertDoesNotExist()
+        compose.onNodeWithText("📍 Rough location found").assertExists()
         c.pause().stop().destroy()
     }
 

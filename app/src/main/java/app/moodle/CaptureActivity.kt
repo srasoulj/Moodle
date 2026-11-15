@@ -176,7 +176,10 @@ class CaptureActivity : ComponentActivity() {
         ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
 
     private fun refreshPermissions() {
-        permsOk = granted(Manifest.permission.CAMERA) && granted(Manifest.permission.ACCESS_FINE_LOCATION)
+        // Rough location is enough, so either the precise or the approximate permission works.
+        permsOk = granted(Manifest.permission.CAMERA) &&
+            (granted(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                granted(Manifest.permission.ACCESS_COARSE_LOCATION))
     }
 
     private fun requestPermissions() {
@@ -451,13 +454,9 @@ class CaptureActivity : ComponentActivity() {
             LocState.Idle, LocState.Searching -> message = "📍 Finding your location…"
             is LocState.Fix -> {
                 message = if (state.approximate) {
-                    "📍 Approximate location (last known / low accuracy)"
+                    "📍 Rough location found"
                 } else {
                     "📍 Location locked" + if (state.accuracy >= 0) " (±${state.accuracy.toInt()} m)" else ""
-                }
-                if (state.approximate) {
-                    actionLabel = "Try for exact GPS"
-                    action = { tracker.start() }
                 }
             }
             LocState.LocationOff -> {
@@ -494,7 +493,7 @@ class CaptureActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                "Recording a moment needs the camera (selfie) and precise location (GPS).",
+                "Recording a moment needs the camera (selfie) and location (approximate is fine).",
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,

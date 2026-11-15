@@ -300,7 +300,7 @@ private fun SetupBanner(readiness: Readiness, onFix: () -> Unit) {
                 Text("• Notifications are off, so the emoji bar can't be shown.")
             }
             if (!readiness.camera) Text("• Camera permission is needed for the selfie.")
-            if (!readiness.location) Text("• Location permission is needed for the GPS position.")
+            if (!readiness.location) Text("• Location permission is needed (approximate is fine).")
             Button(onClick = onFix, modifier = Modifier.padding(top = 8.dp)) { Text("Fix") }
         }
     }
