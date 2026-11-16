@@ -1,0 +1,12 @@
+# Build output
+build/
+.gradle/
+*.apk
+!apk/*.apk
+# Local config
+local.properties
+.idea/
+*.iml
+.DS_Store
+captures/
+.kotlin/
